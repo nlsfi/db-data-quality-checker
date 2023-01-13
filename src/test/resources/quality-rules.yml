@@ -29,7 +29,7 @@ quality_rules:
     priority: fatal
     rule_id: valid_geometry
     sql: |-
-        SELECT s.mttj_id AS source_mttj_id, (SELECT ST_Force2D(ST_SetSRID(location, 3903)) FROM ST_IsValidDetail(s.geom)) AS geom, null AS target_mttj_id
+        SELECT s.id AS source_id, (SELECT ST_Force2D(ST_SetSRID(location, 3903)) FROM ST_IsValidDetail(s.geom)) AS geom, null AS target_id
         FROM feature_type.lake_part s
         WHERE
           :source_id_filter
@@ -46,8 +46,8 @@ quality_rules:
     priority: fatal
     rule_id: no_intersect
     sql: |-
-        SELECT s.mttj_id AS source_mttj_id, (ST_Dump(ST_Force2D(ST_Intersection(ST_MakeValid(s.geom), ST_MakeValid(t.geom))))).geom, t.mttj_id AS target_mttj_id FROM feature_type.lake_part s JOIN feature_type.sea_part t ON
-          t.mttj_id<>s.mttj_id AND ST_Intersects(ST_MakeValid(s.geom), ST_MakeValid(t.geom))
+        SELECT s.id AS source_id, (ST_Dump(ST_Force2D(ST_Intersection(ST_MakeValid(s.geom), ST_MakeValid(t.geom))))).geom, t.id AS target_id FROM feature_type.lake_part s JOIN feature_type.sea_part t ON
+          t.id<>s.id AND ST_Intersects(ST_MakeValid(s.geom), ST_MakeValid(t.geom))
         WHERE
           :source_id_filter
     target: feature_type.sea_part
@@ -65,7 +65,7 @@ quality_rules:
     qgis_expression: '"lake_part_id" >= 2000000 and "lake_part_id" <= 2999999'
     rule_id: attribute_in_range
     sql: |-
-        SELECT s.mttj_id AS source_mttj_id, null AS geom, null AS target_mttj_id FROM feature_type.lake_part s WHERE
+        SELECT s.id AS source_id, null AS geom, null AS target_id FROM feature_type.lake_part s WHERE
           :source_id_filter
           AND NOT s.lake_part_id BETWEEN 2000000 AND 2999999
     type: attribute
@@ -80,7 +80,7 @@ quality_rules:
     priority: fatal
     rule_id: valid_geometry
     sql: |-
-        SELECT s.mttj_id AS source_mttj_id, (SELECT ST_Force2D(ST_SetSRID(location, 3903)) FROM ST_IsValidDetail(s.geom)) AS geom, null AS target_mttj_id
+        SELECT s.id AS source_id, (SELECT ST_Force2D(ST_SetSRID(location, 3903)) FROM ST_IsValidDetail(s.geom)) AS geom, null AS target_id
         FROM feature_type.cultivated_land s
         WHERE
           :source_id_filter
@@ -101,8 +101,8 @@ quality_rules:
     priority: fatal
     rule_id: no_touch_if_same_attribute
     sql: |-
-        SELECT s.mttj_id AS source_mttj_id, (ST_Dump(ST_Force2D(ST_Intersection(ST_MakeValid(s.geom), ST_MakeValid(t.geom))))).geom, t.mttj_id AS target_mttj_id FROM feature_type.cultivated_land s JOIN feature_type.cultivated_land t ON
-          t.mttj_id<>s.mttj_id AND s.cultivated_land_class_id=t.cultivated_land_class_id AND ST_Intersects(ST_MakeValid(s.geom), ST_MakeValid(t.geom))
+        SELECT s.id AS source_id, (ST_Dump(ST_Force2D(ST_Intersection(ST_MakeValid(s.geom), ST_MakeValid(t.geom))))).geom, t.id AS target_id FROM feature_type.cultivated_land s JOIN feature_type.cultivated_land t ON
+          t.id<>s.id AND s.cultivated_land_class_id=t.cultivated_land_class_id AND ST_Intersects(ST_MakeValid(s.geom), ST_MakeValid(t.geom))
         WHERE
           :source_id_filter
     target: feature_type.cultivated_land
@@ -118,7 +118,7 @@ quality_rules:
     priority: fatal
     rule_id: valid_geometry
     sql: |-
-        SELECT s.mttj_id AS source_mttj_id, (SELECT ST_Force2D(ST_SetSRID(location, 3903)) FROM ST_IsValidDetail(s.geom)) AS geom, null AS target_mttj_id
+        SELECT s.id AS source_id, (SELECT ST_Force2D(ST_SetSRID(location, 3903)) FROM ST_IsValidDetail(s.geom)) AS geom, null AS target_id
         FROM feature_type.fence s
         WHERE
           :source_id_filter
@@ -137,7 +137,7 @@ quality_rules:
     qgis_expression: '"height" >= 1 and "height" <= 150'
     rule_id: attribute_in_range
     sql: |-
-        SELECT s.mttj_id AS source_mttj_id, null AS geom, null AS target_mttj_id FROM feature_type.waterfall s WHERE
+        SELECT s.id AS source_id, null AS geom, null AS target_id FROM feature_type.waterfall s WHERE
           :source_id_filter
           AND NOT s.height BETWEEN 1 AND 150
     type: attribute
@@ -156,11 +156,11 @@ quality_rules:
     -   watercourse_part_area
     rule_id: is_contained
     sql: |-
-        SELECT s.mttj_id AS source_mttj_id, ST_Force2D(s.geom) AS geom, null AS target_mttj_id FROM feature_type.boulder_in_water s WHERE
+        SELECT s.id AS source_id, ST_Force2D(s.geom) AS geom, null AS target_id FROM feature_type.boulder_in_water s WHERE
           :source_id_filter
           AND NOT EXISTS (
-          SELECT 1 FROM feature_type.sea_part t WHERE t.mttj_id<>s.mttj_id AND ST_ContainsProperly(ST_MakeValid(t.geom), ST_MakeValid(s.geom))
-             UNION SELECT 1 FROM feature_type.lake_part t WHERE t.mttj_id<>s.mttj_id AND ST_ContainsProperly(ST_MakeValid(t.geom), ST_MakeValid(s.geom))
-             UNION SELECT 1 FROM feature_type.watercourse_part_area t WHERE t.mttj_id<>s.mttj_id AND ST_ContainsProperly(ST_MakeValid(t.geom), ST_MakeValid(s.geom))
+          SELECT 1 FROM feature_type.sea_part t WHERE t.id<>s.id AND ST_ContainsProperly(ST_MakeValid(t.geom), ST_MakeValid(s.geom))
+             UNION SELECT 1 FROM feature_type.lake_part t WHERE t.id<>s.id AND ST_ContainsProperly(ST_MakeValid(t.geom), ST_MakeValid(s.geom))
+             UNION SELECT 1 FROM feature_type.watercourse_part_area t WHERE t.id<>s.id AND ST_ContainsProperly(ST_MakeValid(t.geom), ST_MakeValid(s.geom))
             )
     type: topology
