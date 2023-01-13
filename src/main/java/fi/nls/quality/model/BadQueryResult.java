@@ -1,3 +1,6 @@
+/*
+ * TODO Add license and copyright.
+ */
 package fi.nls.quality.model;
 
 public class BadQueryResult extends QualityQueryResult {
