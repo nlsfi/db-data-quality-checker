@@ -49,7 +49,7 @@ import fi.nls.quality.model.*;
 class QualityServiceTest {
 
     @Mock
-    private WorkRuleExecutorService workRuleExecutorService;
+    private RuleExecutorService workRuleExecutorService;
     @Mock
     private QualityRuleFileReader qualityRuleFileReader;
     @Mock
@@ -60,7 +60,7 @@ class QualityServiceTest {
     @BeforeEach
     public void beforeEach() {
         MockitoAnnotations.openMocks(this);
-        qualityService = new QualityService(workRuleExecutorService, qualityRuleFileReader);
+        qualityService = new QualityService("mock-filename", "id_field");
     }
 
     @Test

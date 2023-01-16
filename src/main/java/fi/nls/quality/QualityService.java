@@ -28,20 +28,22 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
 
 import fi.nls.quality.model.*;
 
-@Service
 public class QualityService {
 
     private List<QualityRule> allQualityRules;
     private List<QualityRule> rulesWithQGisExpression;
 
-    private final WorkRuleExecutorService workRuleExecutorService;
-    private final QualityRuleFileReader qualityRuleFileReader;
+    private RuleExecutorService workRuleExecutorService;
+    private QualityRuleFileReader qualityRuleFileReader;
 
-    public QualityService(WorkRuleExecutorService workRuleExecutorService, QualityRuleFileReader qualityRuleFileReader) {
+    public QualityService(String ruleFile, String idFieldName) {
+        this(new RuleExecutorService(idFieldName), new QualityRuleFileReader(ruleFile));
+    }
+
+    protected QualityService(RuleExecutorService workRuleExecutorService, QualityRuleFileReader qualityRuleFileReader) {
         this.workRuleExecutorService = workRuleExecutorService;
         this.qualityRuleFileReader = qualityRuleFileReader;
     }

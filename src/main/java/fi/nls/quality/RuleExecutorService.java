@@ -27,10 +27,8 @@ import fi.nls.quality.model.BadQueryResult;
 import fi.nls.quality.model.QualityQueryResult;
 import net.postgis.jdbc.PGgeometry;
 import org.geolatte.geom.crs.CoordinateReferenceSystem;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,16 +37,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Service
-public class WorkRuleExecutorService {
+public class RuleExecutorService {
     private static final int SRID_2D = 3067;
     @SuppressWarnings("unchecked")
     private static CoordinateReferenceSystem<C2D> referenceSystem = (CoordinateReferenceSystem<C2D>) CrsRegistry.getCoordinateReferenceSystemForEPSG(SRID_2D, null);;
 
-    @Value("${quality.id_field}")
     private String idField;
 
-    public WorkRuleExecutorService() {
+    public RuleExecutorService(String idField) {
+        this.idField = idField;
     }
 
     public List<QualityQueryResult> executeRule(JdbcTemplate jdbcTemplate, String sql, List<UUID> ids) {

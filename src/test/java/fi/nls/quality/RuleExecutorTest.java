@@ -38,13 +38,12 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import fi.nls.quality.model.BadQueryResult;
 import fi.nls.quality.model.QualityQueryResult;
 import net.postgis.jdbc.PGgeometry;
 
-public class WorkRuleExecutorServiceTest {
+public class RuleExecutorTest {
 
     private static final String BASE_SQL = "SELECT * FROM schema.table";
     private static final String ID_FIELD = "id_field";
@@ -59,7 +58,7 @@ public class WorkRuleExecutorServiceTest {
     @Captor
     private ArgumentCaptor<String> queryCaptor;
 
-    private WorkRuleExecutorService workRuleExecutorService;
+    private RuleExecutorService workRuleExecutorService;
 
     private UUID id1 = UUID.randomUUID();
     private UUID id2 = UUID.randomUUID();
@@ -68,8 +67,7 @@ public class WorkRuleExecutorServiceTest {
     @BeforeEach
     void beforeEach() throws Exception {
         MockitoAnnotations.openMocks(this);
-        workRuleExecutorService = new WorkRuleExecutorService();
-        ReflectionTestUtils.setField(workRuleExecutorService, "idField", ID_FIELD);
+        workRuleExecutorService = new RuleExecutorService(ID_FIELD);
         ids = List.of(id1, id2);
         when(resultSet.getString(1)).thenReturn(TARGET_ID);
         when(resultSet.getObject(3)).thenReturn(RELATED_ID);
@@ -80,7 +78,7 @@ public class WorkRuleExecutorServiceTest {
     @DisplayName("Query errors are caught and BadSqlResult is returned")
     void queryErrorsAreCaught() {
         String errorMsg = "Error message";
-        when(jdbcTemplate.query(anyString(), any(WorkRuleExecutorService.QualityQueryResultRowMapper.class))).thenThrow(new RuntimeException(errorMsg));
+        when(jdbcTemplate.query(anyString(), any(RuleExecutorService.QualityQueryResultRowMapper.class))).thenThrow(new RuntimeException(errorMsg));
 
         List<QualityQueryResult> results = workRuleExecutorService.executeRule(jdbcTemplate, BASE_SQL, ids);
 
@@ -99,7 +97,7 @@ public class WorkRuleExecutorServiceTest {
     @DisplayName("Single BadSqlResult is returned when no ids are given")
     void singleBadSqlResult() {
         String errorMsg = "Error message";
-        when(jdbcTemplate.query(anyString(), any(WorkRuleExecutorService.QualityQueryResultRowMapper.class))).thenThrow(new RuntimeException(errorMsg));
+        when(jdbcTemplate.query(anyString(), any(RuleExecutorService.QualityQueryResultRowMapper.class))).thenThrow(new RuntimeException(errorMsg));
 
         List<QualityQueryResult> results = workRuleExecutorService.executeRule(jdbcTemplate, BASE_SQL, null);
 
@@ -116,7 +114,7 @@ public class WorkRuleExecutorServiceTest {
         when(resultSet.getObject(2)).thenReturn(geom);
         when(resultSet.getObject(2, PGgeometry.class)).thenReturn(geom);
 
-        QualityQueryResult result = new WorkRuleExecutorService.QualityQueryResultRowMapper().mapRow(resultSet, 0);
+        QualityQueryResult result = new RuleExecutorService.QualityQueryResultRowMapper().mapRow(resultSet, 0);
 
         assertThat(JTS.to(result.getGeometryError()).toText()).isEqualTo("POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))");
     }
@@ -128,7 +126,7 @@ public class WorkRuleExecutorServiceTest {
         when(resultSet.getObject(2)).thenReturn(geom);
         when(resultSet.getObject(2, PGgeometry.class)).thenReturn(geom);
 
-        QualityQueryResult result = new WorkRuleExecutorService.QualityQueryResultRowMapper().mapRow(resultSet, 0);
+        QualityQueryResult result = new RuleExecutorService.QualityQueryResultRowMapper().mapRow(resultSet, 0);
 
         assertThat(JTS.to(result.getGeometryError()).toText()).isEqualTo("POINT (0 0)");
     }
@@ -138,7 +136,7 @@ public class WorkRuleExecutorServiceTest {
     void mapRowWithoutGeometry() throws Exception {
         when(resultSet.getObject(2)).thenReturn(null);
 
-        QualityQueryResult result = new WorkRuleExecutorService.QualityQueryResultRowMapper().mapRow(resultSet, 0);
+        QualityQueryResult result = new RuleExecutorService.QualityQueryResultRowMapper().mapRow(resultSet, 0);
 
         assertThat(result.getTargetId().toString()).isEqualTo(TARGET_ID);
         assertThat(result.getGeometryError()).isNull();
@@ -150,7 +148,7 @@ public class WorkRuleExecutorServiceTest {
     void mapRowWithoutRelatedId() throws Exception {
         when(resultSet.getObject(3)).thenReturn(null);
 
-        QualityQueryResult result = new WorkRuleExecutorService.QualityQueryResultRowMapper().mapRow(resultSet, 0);
+        QualityQueryResult result = new RuleExecutorService.QualityQueryResultRowMapper().mapRow(resultSet, 0);
 
         assertThat(result.getRelatedId()).isNull();
     }
