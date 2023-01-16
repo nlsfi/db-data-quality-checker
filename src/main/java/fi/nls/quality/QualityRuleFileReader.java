@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.Property;
@@ -35,11 +33,13 @@ import org.yaml.snakeyaml.introspector.PropertyUtils;
 import fi.nls.quality.exception.QualityException;
 import fi.nls.quality.model.QualityRules;
 
-@Service
 public class QualityRuleFileReader {
 
-    @Value("${quality.rule_file}")
     private String ruleFile;
+
+    public QualityRuleFileReader(String ruleFile) {
+        this.ruleFile = ruleFile;
+    }
 
     private static class CamelCasePropertyUtils extends PropertyUtils {
         public CamelCasePropertyUtils() {
@@ -58,6 +58,14 @@ public class QualityRuleFileReader {
             }
             return name;
         }
+    }
+
+    public void setRuleFile(String fileName) {
+        this.ruleFile = fileName;
+    }
+
+    public String getRuleFile() {
+        return this.ruleFile;
     }
 
     public QualityRules readRules() {

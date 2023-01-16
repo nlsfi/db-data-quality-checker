@@ -24,7 +24,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import fi.nls.quality.model.QualityRule;
 import fi.nls.quality.model.QualityRules;
@@ -34,8 +33,7 @@ public class QualityRuleFileReaderTest {
     @Test
     @DisplayName("Rules are read from yaml file")
     void rulesAreRead() {
-        QualityRuleFileReader qualityRuleFileReader = new QualityRuleFileReader();
-        ReflectionTestUtils.setField(qualityRuleFileReader, "ruleFile", "src/test/resources/quality-rules.yml");
+        QualityRuleFileReader qualityRuleFileReader = new QualityRuleFileReader("src/test/resources/quality-rules.yml");
         QualityRules rules = qualityRuleFileReader.readRules();
 
         assertThat(rules.getQualityRules().size()).isEqualTo(8);
