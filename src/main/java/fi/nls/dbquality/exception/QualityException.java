@@ -1,7 +1,4 @@
-/*
- * TODO Add license and copyright.
- */
-package fi.nls.quality.exception;
+package fi.nls.dbquality.exception;
 
 public class QualityException extends RuntimeException {
     private static final long serialVersionUID = 1L;
