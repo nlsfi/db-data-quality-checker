@@ -20,7 +20,7 @@
 
     <groupId>fi.nls</groupId>
     <artifactId>qualityservice</artifactId>
-    <version>0.1.3-SNAPSHOT</version>
+    <version>0.1.4-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>

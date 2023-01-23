@@ -6,20 +6,12 @@
     - JDK (>=11) <https://openjdk.org/>
     - Maven (>=3.6) <https://maven.apache.org/download.cgi>
 
-## Unit tests
+## Commit message style
 
-- execute tests
+Commit messages should follow [Conventional Commits notation](https://www.conventionalcommits.org/en/v1.0.0/#summary).
 
-```shell
-mvn test
-```
 
-## Create jar
+## Release steps
 
-- execute tests
-
-```shell
-mvn package
-```
-
+TODO
 

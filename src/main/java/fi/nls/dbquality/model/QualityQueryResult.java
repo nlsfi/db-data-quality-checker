@@ -1,7 +1,4 @@
-/*
- * TODO Add license and copyright.
- */
-package fi.nls.quality.model;
+package fi.nls.dbquality.model;
 
 import java.util.UUID;
 
