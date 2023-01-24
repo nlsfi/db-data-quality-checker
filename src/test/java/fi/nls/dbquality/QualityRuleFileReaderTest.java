@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import fi.nls.dbquality.QualityRuleFileReader;
 import fi.nls.dbquality.model.QualityRule;
 import fi.nls.dbquality.model.QualityRules;
 

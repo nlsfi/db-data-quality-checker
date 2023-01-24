@@ -19,7 +19,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import fi.nls.dbquality.RuleExecutorService;
 import fi.nls.dbquality.model.BadQueryResult;
 import fi.nls.dbquality.model.QualityQueryResult;
 import net.postgis.jdbc.PGgeometry;
