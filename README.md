@@ -1,6 +1,6 @@
 # db-data-quality-checker
 
-Java library for finding executing queries in SQL database.
+Java library for executing queries in SQL database.
 
 ## Usage
 
@@ -182,7 +182,7 @@ public class Demo {
 </project>
 ```
 
-## Development of quality-result-gui
+## Development of db-data-quality-checker
 
 See [development readme](./DEVELOPMENT.md).
 
