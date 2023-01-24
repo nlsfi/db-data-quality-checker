@@ -9,8 +9,6 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import fi.nls.dbquality.QualityRuleSqlParser;
-
 class QualityRuleSqlParserTest {
 
     private static final String ID_FIELD = "id_field_name";

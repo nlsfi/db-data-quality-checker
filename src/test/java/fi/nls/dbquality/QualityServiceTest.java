@@ -12,11 +12,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-
 import java.util.*;
 
 import javax.sql.DataSource;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,9 +24,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import fi.nls.dbquality.QualityRuleFileReader;
-import fi.nls.dbquality.QualityService;
-import fi.nls.dbquality.RuleExecutorService;
 import fi.nls.dbquality.model.*;
 
 class QualityServiceTest {
@@ -40,10 +37,20 @@ class QualityServiceTest {
 
     QualityService qualityService;
 
+    private AutoCloseable closeable;
+
     @BeforeEach
     public void beforeEach() {
-        MockitoAnnotations.openMocks(this);
+        closeable = MockitoAnnotations.openMocks(this);
         qualityService = new QualityService("mock-filename", "id_field");
+
+        Util.setField("qualityRuleFileReader", QualityService.class, qualityService, qualityRuleFileReader);
+        Util.setField("workRuleExecutorService", QualityService.class, qualityService, workRuleExecutorService);
+    }
+
+    @AfterEach
+    public void afterEach() throws Exception {
+        closeable.close();
     }
 
     @Test
@@ -324,7 +331,6 @@ class QualityServiceTest {
                 createQualityRuleWithCheckIfChanged("sql_matching_2", "matching_category_2"),
                 createQualityRuleWithCheckIfChanged("sql_2", "non_matching_category")
         ));
-
         Set<String> categoriesToCheck = new HashSet<>();
         categoriesToCheck.add("test_category1");
         categoriesToCheck.add("matching_category_1");
