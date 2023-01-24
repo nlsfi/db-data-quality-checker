@@ -2,9 +2,9 @@
 
 ## Development environment setup
 
-- requirements
-    - JDK (>=11) <https://openjdk.org/>
-    - Maven (>=3.6) <https://maven.apache.org/download.cgi>
+- install Java and Maven
+    - [JDK](https://openjdk.org/)
+    - [Maven (>=3.6)](https://maven.apache.org/download.cgi)
 
 ## Commit message style
 
