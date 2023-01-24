@@ -1,30 +1,27 @@
-# dbquality-service
+# db-data-quality-checker
 
-Java library for executing PostGIS queries.
+Java library for finding executing queries in SQL database.
 
 ## Usage
 
-Following requirements must be met to use this library:
-- PostGIS database
-- YAML file describing SQL queries
-    - tables related to the queries have UUID primary key
+Library can be used to find rows in database which match the given rules. Rule can be for example that geometry must be valid or an integer attribute must have values in given interval.
 
 ### Minimal working example
 
-- prerequisities    
-    - `quality-rules.yml` file is found
-    - PostGIS database `example` in localhost in port 5442
+- prerequisites:
+    - [mvn](https://maven.apache.org/download.cgi) executable in PATH 
+    - `example-quality-rules.yml` file is located in project root directory
+    - PostGIS database `example` in localhost in port 5442. Can be changed in `createDatasource` method.
     - test data created with `create-example-table.sql` script in `public` - schema
     - user `postgres\postgres` granted to select from table `example_table`
+
+- build: `mvn clean package spring-boot:repackage`
+- run: `java -jar target\quality-demo.jar`
 
 ```java
 package fi.nls.qualitydemo;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import javax.sql.DataSource;
 
@@ -34,7 +31,7 @@ import fi.nls.quality.QualityService;
 import fi.nls.quality.model.QualityRunResult;
 
 /**
- * Quality service demo.
+ * Quality service demo with PostGIS database.
  *
  */
 public class Demo {
@@ -73,7 +70,7 @@ public class Demo {
 }
 ```
 
-- demo project can be compiled using following `pom.xml`
+- demo project can be compiled with Maven using following `pom.xml`
 
 ```xml
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -150,12 +147,6 @@ public class Demo {
             <artifactId>spring-jdbc</artifactId>
             <version>${spring-jdbc.version}</version>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.1</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -190,3 +181,23 @@ public class Demo {
     </build>
 </project>
 ```
+
+## Development of quality-result-gui
+
+See [development readme](./DEVELOPMENT.md).
+
+## License & copyright
+
+Licensed under MIT.
+
+This tool is part of the topographic data production system developed in National Land Survey of Finland. For further information, see:
+
+- [Abstract for FOSS4G](https://talks.osgeo.org/foss4g-2022/talk/TDDGJ9/)
+- [General news article about the project](https://www.maanmittauslaitos.fi/en/topical_issues/topographic-data-production-system-upgraded-using-open-source-solutions)
+
+Contact details: eero.hietanen@maanmittauslaitos.fi
+
+Copyright (C) 2022 [National Land Survey of Finland].
+
+[National Land Survey of Finland]: https://www.maanmittauslaitos.fi/en
+[qgis-plugin-dev-tools]: https://github.com/nlsfi/qgis-plugin-dev-tools

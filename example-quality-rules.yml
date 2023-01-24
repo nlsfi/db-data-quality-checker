@@ -1,0 +1,31 @@
+quality_rules:
+    # category groups rules so that one can execute rules
+    # belonging to some selected categories 
+-   category: some_category 
+    descriptions:
+        # description is informative message attached to all rows
+        # found by this rule. should be human readable.
+    -   description: Geometry should not have missing z values
+        lang: en
+    # priority is classification of rows that the rule finds. 
+    # For example info,warning and fatal.
+    priority: fatal
+    # rule_id is rule's unique identifier
+    rule_id: no_missing_z
+    # sql is the select statement that is executed to find 
+    sql: "SELECT id AS source_id, ST_Force2D(vertex) AS geom, null AS target_id
+        FROM ( SELECT id, (ST_DumpPoints( geom )).geom AS vertex FROM public.example_table
+        s  WHERE :source_id_filter) sp WHERE  ST_Z(vertex) = 'NaN'::numeric"
+    type: geometry
+
+-   category: some_category
+    attribute_name: country_of_location_id
+    descriptions:
+    -   description: country_of_location_id value should not be NULL
+        lang: en
+    priority: warning
+    rule_id: attribute_not_null
+    sql: "SELECT s.id AS source_id, s.geom AS geom, null AS target_id
+        FROM public.example_table s WHERE :source_id_filter AND
+        s.country_of_location_id IS NULL"
+    type: attribute

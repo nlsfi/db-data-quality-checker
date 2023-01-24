@@ -19,7 +19,7 @@
     </properties>
 
     <groupId>fi.nls</groupId>
-    <artifactId>qualityservice</artifactId>
+    <artifactId>db-data-qualitychecker</artifactId>
     <version>0.1.4-SNAPSHOT</version>
     <packaging>jar</packaging>
 
