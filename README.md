@@ -157,7 +157,7 @@ public class Demo {
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <configuration>
-                        <mainClass>fi.nls.qualitydemo.App</mainClass>
+                        <mainClass>fi.nls.qualitydemo.Demo</mainClass>
                         <layout>JAR</layout>
                     </configuration>
                     <executions>
