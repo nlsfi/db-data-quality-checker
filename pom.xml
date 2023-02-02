@@ -21,7 +21,7 @@
 
     <groupId>fi.nls</groupId>
     <artifactId>db-data-qualitychecker</artifactId>
-    <version>0.1.4-SNAPSHOT</version>
+    <version>0.1.0</version>
     <packaging>jar</packaging>
 
     <dependencies>
