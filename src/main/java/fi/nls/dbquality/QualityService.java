@@ -12,72 +12,17 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import fi.nls.dbquality.model.*;
 
 public class QualityService {
-
-    private List<QualityRule> allQualityRules;
-    private List<QualityRule> rulesWithQGisExpression;
-
     private RuleExecutorService workRuleExecutorService;
-    private QualityRuleFileReader qualityRuleFileReader;
 
-    public QualityService(String ruleFile, String idFieldName) {
-        this(new RuleExecutorService(idFieldName), new QualityRuleFileReader(ruleFile));
+    public QualityService(String idFieldName) {
+        this(new RuleExecutorService(idFieldName));
     }
 
-    protected QualityService(RuleExecutorService workRuleExecutorService, QualityRuleFileReader qualityRuleFileReader) {
+    protected QualityService(RuleExecutorService workRuleExecutorService) {
         this.workRuleExecutorService = workRuleExecutorService;
-        this.qualityRuleFileReader = qualityRuleFileReader;
     }
 
-    public List<QualityRule> getAllQualityRules() {
-        readRules();
-        return allQualityRules;
-    }
-
-    public List<QualityRule> getRulesWithQGisExpression() {
-        readRules();
-        return rulesWithQGisExpression;
-    }
-
-    private void readRules() {
-        if (allQualityRules != null) {
-            return;
-        }
-        QualityRules rules = qualityRuleFileReader.readRules();
-        if (rules.getQualityRules() != null) {
-            allQualityRules = rules.getQualityRules();
-            rulesWithQGisExpression = rules.getQualityRules()
-                    .stream()
-                    .filter(rule -> Objects.nonNull(rule.getQgisExpression()))
-                    .collect(Collectors.toList());
-        } else {
-            allQualityRules = Collections.emptyList();
-            rulesWithQGisExpression = Collections.emptyList();
-        }
-    }
-
-    public QualityRunResult executeRules(DataSource dataSource, Map<String, List<UUID>> featuresByCategory) {
-        Objects.requireNonNull(featuresByCategory, "featuresByCategory is required");
-        Set<String> categories = featuresByCategory.keySet();
-        List<QualityRule> rules = getAllQualityRules()
-                .stream()
-                .filter(rule -> categories.contains(rule.getCategory()))
-                .collect(Collectors.toList());
-
-        return executeRules(dataSource, featuresByCategory, rules);
-    }
-
-    public QualityRunResult executeRulesIfRelatedCategoryChanged(DataSource dataSource, Set<String> categoriesToCheck) {
-        Objects.requireNonNull(categoriesToCheck, "categoriesToCheck is required");
-        List<QualityRule> rules = getAllQualityRules()
-                .stream()
-                .filter(rule -> Objects.nonNull(rule.getCheckIfChanged()))
-                .filter(rule -> rule.getCheckIfChanged().stream().anyMatch(cat -> categoriesToCheck.contains(cat)))
-                .collect(Collectors.toList());
-
-        return executeRules(dataSource, Collections.emptyMap(), rules);
-    }
-
-    private QualityRunResult executeRules(DataSource dataSource, Map<String, List<UUID>> featuresByCategory, List<QualityRule> rules) {
+    public QualityRunResult executeRules(DataSource dataSource, Map<String, List<UUID>> featuresByCategory, List<? extends QualityRule> rules) {
         var jdbcTemplate = new JdbcTemplate(dataSource);
         Map<String, Set<UUID>> executedRulesById = new HashMap<>();
         List<QualityResult> qualityResults = rules
@@ -154,8 +99,4 @@ public class QualityService {
         return result;
     }
 
-    public void clearCache() {
-        allQualityRules = null;
-        rulesWithQGisExpression = null;
-    }
 }
