@@ -8,7 +8,6 @@
         <java.version>11</java.version>
         <postgis-jdbc.version>2021.1.0</postgis-jdbc.version>
         <geolatte-geom.version>1.8.2</geolatte-geom.version>
-        <snakeyaml.version>1.33</snakeyaml.version>
         <assertj-core.version>3.24.1</assertj-core.version>
         <spring-jdbc.version>5.2.22.RELEASE</spring-jdbc.version>
         <junit-jupiter-api.version>5.9.2</junit-jupiter-api.version>
@@ -21,7 +20,7 @@
 
     <groupId>fi.nls</groupId>
     <artifactId>db-data-qualitychecker</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -34,11 +33,6 @@
             <groupId>net.postgis</groupId>
             <artifactId>postgis-jdbc</artifactId>
             <version>${postgis-jdbc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>${snakeyaml.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

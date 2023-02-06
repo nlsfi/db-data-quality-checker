@@ -27,8 +27,9 @@ import javax.sql.DataSource;
 
 import org.springframework.boot.jdbc.DataSourceBuilder;
 
-import fi.nls.quality.QualityService;
-import fi.nls.quality.model.QualityRunResult;
+import fi.nls.dbquality.QualityService;
+import fi.nls.dbquality.model.QualityRule;
+import fi.nls.dbquality.model.QualityRunResult;
 
 /**
  * Quality service demo with PostGIS database.
@@ -41,23 +42,51 @@ public class Demo {
 
     public void run() {
         var dataSource = createDatasource();
-        var qualityService = new QualityService("quality-rules.yml", "mttj_id");
+        var qualityService = new QualityService("id");
         Map<String, List<UUID>> featuresByCategory = new HashMap<>();
-
-        // execute rules with id criteria
-        featuresByCategory.put("some_category", Arrays.asList(UUID.fromString("01d24c09-de46-4e93-93fa-5037e64edd34")));
-        var runResult = qualityService.executeRules(dataSource, featuresByCategory);
+        featuresByCategory.put("some_category", Arrays.asList(UUID.fromString("01d24c09-de46-4e93-93fa-5037e64edd34"), UUID.fromString("01d24c09-de46-4e93-93fa-5037e64edd34")));
+        var rules = createRules();
+        var runResult = qualityService.executeRules(dataSource, featuresByCategory, rules);
         print(runResult);
 
-        // execute rules without id criteria
+        System.out.print(runResult.getQualityResults());
         featuresByCategory.clear();
         featuresByCategory.put("some_category", null);
-        runResult = qualityService.executeRules(dataSource, featuresByCategory);
+        runResult = qualityService.executeRules(dataSource, featuresByCategory, rules);
         print(runResult);
     }
 
+    public List<QualityRule> createRules() {
+        // One can use some YAML libraruy to parse the
+        // example file quality-rules.yml in following list.
+        var result = new ArrayList<QualityRule>();
+        var rule1 = new QualityRule();
+        rule1.setCategory("some_category");
+        rule1.setPriority("fatal");
+        rule1.setRuleId("no_missing_z");
+        rule1.setType("geometry");
+        rule1.setSql("SELECT id AS source_id, ST_Force2D(vertex) AS geom, null AS target_id"
+                + " FROM ( SELECT id, (ST_DumpPoints( geom )).geom AS vertex FROM public.example_table s"
+                + " WHERE :source_id_filter) sp WHERE  ST_Z(vertex) = 'NaN'::numeric");
+        rule1.setDescriptions(new ArrayList<>());
+        result.add(rule1);
+ 
+        var rule2 = new QualityRule();
+        rule2.setAttributeName("country_of_location_id");
+        rule2.setCategory("some_category");
+        rule2.setPriority("warning");
+        rule2.setRuleId("attribute_not_null");
+        rule2.setType("attribute");
+        rule2.setSql("SELECT s.id AS source_id, s.geom AS geom, null AS target_id"
+                + " FROM public.example_table s WHERE :source_id_filter AND"
+                + " s.country_of_location_id IS NULL");
+        rule2.setDescriptions(new ArrayList<>());
+        result.add(rule2);
+        return result;
+    }
+
     public DataSource createDatasource() {
-        var ds = DataSourceBuilder.create().username("postgres").password("postgres").url("jdbc:postgresql://localhost:5442/example").build();
+        var ds = DataSourceBuilder.create().username("postgres").password("postgres").url("jdbc:postgresql://localhost:5442/mttj_primary").build();
         return ds;
     }
 
@@ -87,7 +116,7 @@ public class Demo {
     <url>http://maven.apache.org</url>
 
     <properties>
-        <qualityservice.version>0.1.3-SNAPSHOT</qualityservice.version>
+        <qualityservice.version>0.2.0</qualityservice.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <project.artifactId>project.artifactId</project.artifactId>
@@ -106,7 +135,7 @@ public class Demo {
     <dependencies>
         <dependency>
             <groupId>fi.nls</groupId>
-            <artifactId>qualityservice</artifactId>
+            <artifactId>db-data-qualitychecker</artifactId>
             <version>${qualityservice.version}</version>
         </dependency>
         <dependency>
@@ -136,11 +165,6 @@ public class Demo {
                 with param count https://github.com/pgjdbc/pgjdbc/issues/1311, override with
                 fix for now -->
             <version>42.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>${snakeyaml.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
