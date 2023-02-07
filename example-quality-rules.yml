@@ -6,6 +6,7 @@ quality_rules:
         # description is informative message attached to all rows
         # found by this rule. should be human readable.
     -   description: Geometry should not have missing z values
+        extra_info: null
         lang: en
     # priority is classification of rows that the rule finds. 
     # For example info,warning and fatal.
@@ -22,6 +23,7 @@ quality_rules:
     attribute_name: country_of_location_id
     descriptions:
     -   description: country_of_location_id value should not be NULL
+        extra_info: "Related feature: some_category"
         lang: en
     priority: warning
     rule_id: attribute_not_null

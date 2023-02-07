@@ -11,6 +11,7 @@ public class QualityCheckFixture {
             Description description = new Description();
             description.setLang(lang);
             description.setDescription(lang + "_sääntö");
+            description.setExtraInfo(lang + "_extra_info");
             descriptions.add(description);
         });
         return descriptions;
