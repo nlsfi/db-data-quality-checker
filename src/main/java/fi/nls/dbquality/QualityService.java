@@ -22,12 +22,12 @@ public class QualityService {
         this.workRuleExecutorService = workRuleExecutorService;
     }
 
-    public QualityRunResult executeRules(DataSource dataSource, Map<String, List<UUID>> featuresByCategory, List<? extends QualityRule> rules) {
+    public QualityRunResult executeRules(DataSource dataSource, List<UUID> features, List<? extends QualityRule> rules) {
         var jdbcTemplate = new JdbcTemplate(dataSource);
         Map<String, Set<UUID>> executedRulesById = new HashMap<>();
         List<QualityResult> qualityResults = rules
                 .stream()
-                .flatMap(rule -> executeRule(jdbcTemplate, rule, featuresByCategory.get(rule.getCategory()), executedRulesById))
+                .flatMap(rule -> executeRule(jdbcTemplate, rule, features, executedRulesById))
                 .collect(Collectors.toList());
 
         return new QualityRunResult(qualityResults, executedRulesById);
@@ -36,14 +36,14 @@ public class QualityService {
     private Stream<QualityResult> executeRule(JdbcTemplate jdbcTemplate, QualityRule rule, List<UUID> ids, Map<String, Set<UUID>> executedRulesById) {
         List<QualityQueryResult> queryResults = workRuleExecutorService.executeRule(jdbcTemplate, rule.getSql(), ids);
         if (ids != null) {
-            Set<UUID> mapIds = executedRulesById.get(rule.getRuleId());
+            Set<UUID> mapIds = executedRulesById.get(rule.getRuleUniqueId());
             if (mapIds != null) {
                 mapIds.addAll(ids);
             } else {
-                executedRulesById.put(rule.getRuleId(), new HashSet<>(ids));
+                executedRulesById.put(rule.getRuleUniqueId(), new HashSet<>(ids));
             }
         } else {
-            executedRulesById.put(rule.getRuleId(), new HashSet<>());
+            executedRulesById.put(rule.getRuleUniqueId(), new HashSet<>());
         }
         if (!queryResults.isEmpty() && queryResults.get(0) instanceof BadQueryResult && ids != null && ids.size() > 1) {
             return executeIndividualQueries(jdbcTemplate, rule, ids);
@@ -70,7 +70,6 @@ public class QualityService {
         QualityResult result = createBaseResult(rule);
         result.setTargetId(queryResult.getTargetId());
         result.setRelatedId(queryResult.getRelatedId());
-        result.setDescriptions(rule.getDescriptions());
         result.setViolatingGeometry(queryResult.getGeometryError());
         return result;
     }
@@ -78,24 +77,12 @@ public class QualityService {
     private QualityResult mapBadQueryResult(QualityRule rule, BadQueryResult queryResult) {
         QualityResult result = createBaseResult(rule);
         result.setTargetId(queryResult.getTargetId());
-        List<Description> descriptions = rule.getDescriptions().stream().map(ruleDescription -> {
-            Description description = new Description();
-            description.setDescription(queryResult.getErrorMessage());
-            description.setLang(ruleDescription.getLang());
-            return description;
-        }).collect(Collectors.toList());
-        result.setDescriptions(descriptions);
         return result;
     }
 
     private QualityResult createBaseResult(QualityRule rule) {
         QualityResult result = new QualityResult();
-        result.setCategory(rule.getCategory());
-        result.setRelatedCategory(rule.getTarget());
-        result.setRuleId(rule.getRuleId());
-        result.setType(rule.getType());
-        result.setPriority(rule.getPriority());
-        result.setViolatingAttributeName(rule.getAttributeName());
+        result.setId(rule.getRuleUniqueId());
         return result;
     }
 

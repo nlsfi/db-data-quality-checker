@@ -47,49 +47,21 @@ class QualityServiceTest {
         closeable.close();
     }
 
-
-    @Test
-    @DisplayName("Exception is thrown when no criteria is given")
-    void exceptionIsThrownWhenNoCriteria() {
-        var rules = List.of(
-                createQualityRule("ruleId1", "category1", "sql1", null),
-                createQualityRule("ruleId2", "category2", "sql2", null)
-        );
-        assertThrows(NullPointerException.class, () -> {
-            qualityService.executeRules(dataSource, null, rules);
-        });
-    }
-
-    @Test
-    @DisplayName("Rules with a specific category are executed when criteria is given")
-    void rulesWithCategoryAreExecuted() {
-        var rules = List.of(
-                createQualityRule("ruleId1", "category1", "sql1", null),
-                createQualityRule("ruleId2", "category2", "sql2", null)
-        );
-        Map<String, List<UUID>> qualityCriteria = createCriteria("category1", null);
-
-        qualityService.executeRules(dataSource, qualityCriteria, rules);
-
-        verify(workRuleExecutorService, times(1)).executeRule(any(JdbcTemplate.class), eq("sql1"), any());
-    }
-
     @Test
     @DisplayName("Rule is executed with ids of category")
     void rulesAreExecutedWithIds() {
         var rules = List.of(
-                createQualityRule("ruleId1", "category1", "sql1", null),
-                createQualityRule("ruleId2", "category2", "sql2", null)
+                createQualityRule("ruleId1", "sql1"),
+                createQualityRule("ruleId2", "sql2")
         );
         UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
-        Map<String, List<UUID>> qualityCriteria = createCriteria("category1", List.of(id1));
-        qualityCriteria.putAll(createCriteria("category2", List.of(id2)));
+        List<UUID> qualityCriteria = createCriteria(List.of(id1));
+        qualityCriteria.addAll(createCriteria(List.of(id2)));
 
         qualityService.executeRules(dataSource, qualityCriteria, rules);
 
-        verify(workRuleExecutorService, times(1)).executeRule(any(JdbcTemplate.class), any(), eq(qualityCriteria.get("category1")));
-        verify(workRuleExecutorService, times(1)).executeRule(any(JdbcTemplate.class), any(), eq(qualityCriteria.get("category2")));
+        verify(workRuleExecutorService, times(2)).executeRule(any(JdbcTemplate.class), any(), eq(qualityCriteria));
     }
 
     @Test
@@ -107,7 +79,7 @@ class QualityServiceTest {
                 createQueryResult(id2, id22)
         ));
 
-        Map<String, List<UUID>> qualityCriteria = createCriteria("category1", List.of(id1, id2));
+        List<UUID> qualityCriteria = createCriteria(List.of(id1, id2));
         QualityRunResult qualityRunResult = qualityService.executeRules(dataSource, qualityCriteria, rules);
 
         // Test executed rules
@@ -122,11 +94,11 @@ class QualityServiceTest {
         QualityResult result1 = results.get(0);
         assertEquals(id1, result1.getTargetId());
         assertEquals(id11, result1.getRelatedId());
-        assertEquals("ruleId1", result1.getRuleId());
+        assertEquals("ruleId1", result1.getId());
         QualityResult result2 = results.get(1);
         assertEquals(id2, result2.getTargetId());
         assertEquals(id22, result2.getRelatedId());
-        assertEquals("ruleId1", result2.getRuleId());
+        assertEquals("ruleId1", result2.getId());
     }
 
     @Test
@@ -145,7 +117,7 @@ class QualityServiceTest {
                 .thenReturn(List.of(createQueryResult(id1, id11)))
                 .thenReturn(List.of(createBadQueryResult(id2)));
         List<UUID> ids = List.of(id1, id2);
-        Map<String, List<UUID>> qualityCriteria = createCriteria("category1", ids);
+        List<UUID> qualityCriteria = createCriteria(ids);
 
         List<QualityResult> results = qualityService.executeRules(dataSource, qualityCriteria, rules).getQualityResults();
 
@@ -157,13 +129,11 @@ class QualityServiceTest {
         QualityResult result1 = results.get(0);
         assertEquals(id1, result1.getTargetId());
         assertEquals(id11, result1.getRelatedId());
-        assertEquals("ruleId1", result1.getRuleId());
+        assertEquals("ruleId1", result1.getId());
         // Second result is individually executed query for id2, query returns BadQueryResult
         QualityResult result2 = results.get(1);
         assertEquals(id2, result2.getTargetId());
-        assertEquals(rule.getDescriptions().size(), result2.getDescriptions().size());
-        result2.getDescriptions().forEach(description -> assertEquals("bad SQL grammar", description.getDescription()));
-        assertEquals("ruleId1", result2.getRuleId());
+        assertEquals("ruleId1", result2.getId());
     }
 
     @Test
@@ -173,35 +143,26 @@ class QualityServiceTest {
         var rules = List.of(rule);
         when(workRuleExecutorService.executeRule(any(JdbcTemplate.class), any(), any())).thenReturn(List.of(createBadQueryResult(null)));
 
-        Map<String, List<UUID>> qualityCriteria = createCriteria("category1", List.of(UUID.randomUUID()));
+        List<UUID> qualityCriteria = createCriteria(List.of(UUID.randomUUID()));
         List<QualityResult> results = qualityService.executeRules(dataSource, qualityCriteria, rules).getQualityResults();
 
         verify(workRuleExecutorService, times(1)).executeRule(any(JdbcTemplate.class), any(), any());
         assertEquals(1, results.size());
         QualityResult result = results.get(0);
         assertNull(result.getTargetId());
-        assertEquals(rule.getDescriptions().size(), result.getDescriptions().size());
-        result.getDescriptions().forEach(description -> assertEquals("bad SQL grammar", description.getDescription()));
-        assertEquals("ruleId1", result.getRuleId());
+        assertEquals("ruleId1", result.getId());
     }
 
-    private QualityRule createQualityRule(String ruleId, String qgisExpression) {
-        return createQualityRule(ruleId, "category1", "sql1", qgisExpression);
-    }
-
-    private QualityRule createQualityRule(String ruleId, String category, String sql, String qgisExpression) {
+    private QualityRule createQualityRule(String ruleId, String sql) {
         QualityRule rule = new QualityRule();
-        rule.setRuleId(ruleId);
-        rule.setCategory(category);
+        rule.setRuleUniqueId(ruleId);
         rule.setSql(sql);
-        rule.setQgisExpression(qgisExpression);
-        rule.setDescriptions(QualityCheckFixture.createDescriptions());
         return rule;
     }
 
-    private Map<String, List<UUID>> createCriteria(String category, List<UUID> ids) {
-        Map<String, List<UUID>> qualityCriteria = new HashMap<>();
-        qualityCriteria.put(category, ids);
+    private List<UUID> createCriteria(List<UUID> ids) {
+        List<UUID> qualityCriteria = new ArrayList<>();
+        qualityCriteria.addAll(ids);
         return qualityCriteria;
     }
 
