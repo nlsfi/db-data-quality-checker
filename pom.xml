@@ -7,7 +7,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>11</java.version>
         <postgis-jdbc.version>2021.1.0</postgis-jdbc.version>
-        <geolatte-geom.version>1.8.2</geolatte-geom.version>
+        <geolatte-geom.version>1.9.0</geolatte-geom.version>
         <assertj-core.version>3.24.1</assertj-core.version>
         <spring-jdbc.version>5.2.22.RELEASE</spring-jdbc.version>
         <junit-jupiter-api.version>5.9.2</junit-jupiter-api.version>
@@ -20,7 +20,7 @@
 
     <groupId>fi.nls</groupId>
     <artifactId>db-data-qualitychecker</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
     <packaging>jar</packaging>
 
     <dependencies>

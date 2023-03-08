@@ -33,7 +33,8 @@ public class RuleExecutorService {
     public List<QualityQueryResult> executeRule(JdbcTemplate jdbcTemplate, String sql, List<UUID> ids) {
         String queryStr = QualityRuleSqlParser.parse(sql, ids, idField);
         try {
-            return jdbcTemplate.query(queryStr, new QualityQueryResultRowMapper());
+            var args = ids == null ? null : ids.toArray(new Object[0]);
+            return jdbcTemplate.query(queryStr, new QualityQueryResultRowMapper(), args);
         } catch (RuntimeException e) {
             if (ids == null || ids.isEmpty()) {
                 BadQueryResult result = new BadQueryResult();

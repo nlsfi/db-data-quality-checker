@@ -22,6 +22,15 @@ public class QualityService {
         this.workRuleExecutorService = workRuleExecutorService;
     }
 
+    /**
+     * Execute quality rules
+     *
+     * @param dataSource
+     * @param features list of ids for source_id_filter placeholder in sql clauses. Empty list: source_id_filter is replaced
+     *   with criteria <code>1=1</code>. Null: source_id_filter is replaced with criteria <code>1=0</code>.
+     * @param rules rules to be executed
+     * @return {@link fi.nls.dbquality.model.QualityRunResult}
+     */
     public QualityRunResult executeRules(DataSource dataSource, List<UUID> features, List<? extends QualityRule> rules) {
         var jdbcTemplate = new JdbcTemplate(dataSource);
         Map<String, Set<UUID>> executedRulesById = new HashMap<>();
