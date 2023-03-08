@@ -3,6 +3,8 @@ package fi.nls.dbquality;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.sql.ResultSet;
@@ -19,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import fi.nls.dbquality.matcher.UUIDListMatcher;
 import fi.nls.dbquality.model.BadQueryResult;
 import fi.nls.dbquality.model.QualityQueryResult;
 import net.postgis.jdbc.PGgeometry;
@@ -58,7 +61,8 @@ public class RuleExecutorTest {
     @DisplayName("Query errors are caught and BadSqlResult is returned")
     void queryErrorsAreCaught() {
         String errorMsg = "Error message";
-        when(jdbcTemplate.query(anyString(), any(RuleExecutorService.QualityQueryResultRowMapper.class))).thenThrow(new RuntimeException(errorMsg));
+        when(jdbcTemplate.query(anyString(), any(RuleExecutorService.QualityQueryResultRowMapper.class),
+                argThat(new UUIDListMatcher(ids)))).thenThrow(new RuntimeException(errorMsg));
 
         List<QualityQueryResult> results = workRuleExecutorService.executeRule(jdbcTemplate, BASE_SQL, ids);
 
@@ -77,7 +81,8 @@ public class RuleExecutorTest {
     @DisplayName("Single BadSqlResult is returned when no ids are given")
     void singleBadSqlResult() {
         String errorMsg = "Error message";
-        when(jdbcTemplate.query(anyString(), any(RuleExecutorService.QualityQueryResultRowMapper.class))).thenThrow(new RuntimeException(errorMsg));
+        when(jdbcTemplate.query(anyString(), any(RuleExecutorService.QualityQueryResultRowMapper.class),
+                eq(null))).thenThrow(new RuntimeException(errorMsg));
 
         List<QualityQueryResult> results = workRuleExecutorService.executeRule(jdbcTemplate, BASE_SQL, null);
 

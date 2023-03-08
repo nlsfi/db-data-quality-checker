@@ -3,7 +3,6 @@ package fi.nls.dbquality;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class QualityRuleSqlParser {
 
@@ -11,6 +10,15 @@ public class QualityRuleSqlParser {
     private static final String SOURCE_ID_FILTER = ":source_id_filter";
     private static final String SQL_TRUE = "1=1";
     private static final String SQL_FALSE = "1=0";
+
+    public static String getPlaceholders(int count) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("?");
+        if (count > 1) {
+            sb.append(",?".repeat(count - 1));
+        }
+        return sb.toString();
+    }
 
     public static String parse(String sql, List<UUID> ids, String idField) {
         Objects.requireNonNull(sql, "sql must not be null");
@@ -27,7 +35,7 @@ public class QualityRuleSqlParser {
             // if there are ids in list -> replace source_id_filter with in clause
             StringBuilder sb = new StringBuilder();
             sb.append(SOURCE_ID_PREFIX).append(idField).append(" IN (");
-            sb.append(String.join(", ", ids.stream().map(id -> "'" + id + "'").collect(Collectors.toList())));
+            sb.append(QualityRuleSqlParser.getPlaceholders(ids.size()));
             sb.append(")");
             return sql.replace(SOURCE_ID_FILTER, sb.toString());
         }

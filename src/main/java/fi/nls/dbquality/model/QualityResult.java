@@ -1,6 +1,5 @@
 package fi.nls.dbquality.model;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.geolatte.geom.C2D;
