@@ -70,8 +70,8 @@ class QualityRuleSqlParserTest {
     void parseShouldReplaceSourceIdFilterWithInClauseWhenOneIdInList() {
         UUID id1 = UUID.fromString("b6c23946-3ed7-4b83-9568-e82767e39287");
         String sql = "select * from tablename where :source_id_filter;";
-        var placeholders = QualityRuleSqlParser.getPlaceholders(1);
-        String expectedSql = "select * from tablename where s." + ID_FIELD + " IN (" + placeholders + ");";
+
+        String expectedSql = "select * from tablename where s." + ID_FIELD + " IN (?);";
         String result = QualityRuleSqlParser.parse(sql, List.of(id1), ID_FIELD);
         assertEquals(expectedSql, result);
     }
@@ -81,8 +81,7 @@ class QualityRuleSqlParserTest {
         UUID id1 = UUID.fromString("b6c23946-3ed7-4b83-9568-e82767e39287");
         String sql = "select * from tablename where :source_id_filter and :source_id_filter;";
 
-        var placeholders = QualityRuleSqlParser.getPlaceholders(1);
-        String expectedSql = "select * from tablename where s." + ID_FIELD + " IN (" + placeholders + ") and s." + ID_FIELD + " IN (" + placeholders + ");";
+        String expectedSql = "select * from tablename where s." + ID_FIELD + " IN (?) and s." + ID_FIELD + " IN (?);";
         String result = QualityRuleSqlParser.parse(sql, List.of(id1), ID_FIELD);
         assertEquals(expectedSql, result);
     }
@@ -93,7 +92,7 @@ class QualityRuleSqlParserTest {
         UUID id2 = UUID.fromString("25895a30-2a97-4d8f-8a5b-311a368a352a");
         UUID id3 = UUID.fromString("f50a5c61-4826-42d9-81fd-098d9546df07");
         String sql = "select * from tablename where :source_id_filter;";
-        String expectedSql = "select * from tablename where s." + ID_FIELD + " IN (" + QualityRuleSqlParser.getPlaceholders(3) + ");";
+        String expectedSql = "select * from tablename where s." + ID_FIELD + " IN (?,?,?);";
         String result = QualityRuleSqlParser.parse(sql, List.of(id1, id2, id3), ID_FIELD);
         assertEquals(expectedSql, result);
     }
@@ -105,11 +104,9 @@ class QualityRuleSqlParserTest {
         UUID id3 = UUID.fromString("f50a5c61-4826-42d9-81fd-098d9546df07");
         String sql = "select * from tablename where :source_id_filter and :source_id_filter;";
 
-        var placeholders = QualityRuleSqlParser.getPlaceholders(3);
-        String expectedSql = "select * from tablename where s." + ID_FIELD + " IN (" + placeholders + ") and s."
-                + ID_FIELD + " IN (" + placeholders + ");";
+        String expectedSql = "select * from tablename where s." + ID_FIELD + " IN (?,?,?) and s."
+                + ID_FIELD + " IN (?,?,?);";
         String result = QualityRuleSqlParser.parse(sql, List.of(id1, id2, id3), ID_FIELD);
         assertEquals(expectedSql, result);
     }
-
 }
