@@ -27,7 +27,15 @@ public class RuleExecutorService {
     private String idField;
 
     public RuleExecutorService(String idField) {
+        validateColumnName(idField);
+
         this.idField = idField;
+    }
+
+    private void validateColumnName(String columnName) {
+        if (columnName.contains(";") || columnName.contains("--") || columnName.contains("/*")) {
+            throw new IllegalArgumentException("invalid column name");
+        }
     }
 
     public List<QualityQueryResult> executeRule(JdbcTemplate jdbcTemplate, String sql, List<UUID> ids) {

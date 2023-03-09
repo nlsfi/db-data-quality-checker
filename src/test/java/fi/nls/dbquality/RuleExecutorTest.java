@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.geolatte.geom.jts.JTS;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -136,5 +137,13 @@ public class RuleExecutorTest {
         QualityQueryResult result = new RuleExecutorService.QualityQueryResultRowMapper().mapRow(resultSet, 0);
 
         assertThat(result.getRelatedId()).isNull();
+    }
+
+    @Test
+    @DisplayName("Invalid column name throws IllegalArgumentException")
+    void invalidIdColumnName() throws Exception {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new RuleExecutorService("id is null;drop table public.example_table; --");
+        });
     }
 }

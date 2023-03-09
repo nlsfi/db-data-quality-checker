@@ -14,6 +14,14 @@ import fi.nls.dbquality.model.*;
 public class QualityService {
     private RuleExecutorService workRuleExecutorService;
 
+    /**
+     * Constructor
+     *
+     * @param idFieldName
+     *            id column name
+     * @throws IllegalArgumentException
+     *             if the id column name is not vali
+     */
     public QualityService(String idFieldName) {
         this(new RuleExecutorService(idFieldName));
     }
