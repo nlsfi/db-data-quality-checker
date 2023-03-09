@@ -11,7 +11,7 @@ public class QualityRuleSqlParser {
     private static final String SQL_TRUE = "1=1";
     private static final String SQL_FALSE = "1=0";
 
-    public static String getPlaceholders(int count) {
+    private static String getPlaceholders(int count) {
         StringBuilder sb = new StringBuilder();
         sb.append("?");
         if (count > 1) {
