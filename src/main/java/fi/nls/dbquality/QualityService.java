@@ -31,10 +31,14 @@ public class QualityService {
     }
 
     /**
-     * Execute quality rules
+     * Execute quality rules.
+     * <p>
+     * Method executes sql statements "as is". It does not check that sql statements are select statements. Caller should check that
+     * the sql does not contain data manipulation or DDL statements.
+     * </p>
      *
      * @param dataSource
-     * @param features list of ids for source_id_filter placeholder in sql clauses. Empty list: source_id_filter is replaced
+     * @param features list of ids for source_id_filter placeholder in sql statements. Empty list: source_id_filter is replaced
      *   with criteria <code>1=1</code>. Null: source_id_filter is replaced with criteria <code>1=0</code>.
      * @param rules rules to be executed
      * @return {@link fi.nls.dbquality.model.QualityRunResult}
