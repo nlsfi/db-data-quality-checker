@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.sql.ResultSet;
@@ -30,6 +29,7 @@ import net.postgis.jdbc.PGgeometry;
 public class RuleExecutorTest {
 
     private static final String BASE_SQL = "SELECT * FROM schema.table";
+    private static final String BASE_SQL_WITH_SOURCE_ID = "SELECT * FROM schema.table where :source_id_filter";
     private static final String ID_FIELD = "id_field";
     private static final String TARGET_ID = "f63a52a7-c575-477f-896a-88fb16bb952a";
     private static final String RELATED_ID = "031afcc0-0b41-4612-978b-6b38593d5dbd";
@@ -65,7 +65,7 @@ public class RuleExecutorTest {
         when(jdbcTemplate.query(anyString(), any(RuleExecutorService.QualityQueryResultRowMapper.class),
                 argThat(new UUIDListMatcher(ids)))).thenThrow(new RuntimeException(errorMsg));
 
-        List<QualityQueryResult> results = workRuleExecutorService.executeRule(jdbcTemplate, BASE_SQL, ids);
+        List<QualityQueryResult> results = workRuleExecutorService.executeRule(jdbcTemplate, BASE_SQL_WITH_SOURCE_ID, ids);
 
         assertThat(results.size()).isEqualTo(2);
         assertThat(results).anySatisfy(result -> {
@@ -82,8 +82,7 @@ public class RuleExecutorTest {
     @DisplayName("Single BadSqlResult is returned when no ids are given")
     void singleBadSqlResult() {
         String errorMsg = "Error message";
-        when(jdbcTemplate.query(anyString(), any(RuleExecutorService.QualityQueryResultRowMapper.class),
-                eq(null))).thenThrow(new RuntimeException(errorMsg));
+        when(jdbcTemplate.query(anyString(), any(RuleExecutorService.QualityQueryResultRowMapper.class))).thenThrow(new RuntimeException(errorMsg));
 
         List<QualityQueryResult> results = workRuleExecutorService.executeRule(jdbcTemplate, BASE_SQL, null);
 

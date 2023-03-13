@@ -40,9 +40,14 @@ public class RuleExecutorService {
 
     public List<QualityQueryResult> executeRule(JdbcTemplate jdbcTemplate, String sql, List<UUID> ids) {
         String queryStr = QualityRuleSqlParser.parse(sql, ids, idField);
+        boolean hasIdFilter = QualityRuleSqlParser.hasIdFilter(sql);
+
         try {
             var args = ids == null ? null : ids.toArray(new Object[0]);
-            return jdbcTemplate.query(queryStr, new QualityQueryResultRowMapper(), args);
+            if (args != null && args.length > 0 && hasIdFilter) {
+                return jdbcTemplate.query(queryStr, new QualityQueryResultRowMapper(), args);
+            }
+            return jdbcTemplate.query(queryStr, new QualityQueryResultRowMapper());
         } catch (RuntimeException e) {
             if (ids == null || ids.isEmpty()) {
                 BadQueryResult result = new BadQueryResult();

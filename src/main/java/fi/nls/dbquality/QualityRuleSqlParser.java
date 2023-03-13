@@ -40,4 +40,8 @@ public class QualityRuleSqlParser {
             return sql.replace(SOURCE_ID_FILTER, sb.toString());
         }
     }
+
+    public static boolean hasIdFilter(String sql) {
+        return sql.contains(SOURCE_ID_FILTER);
+    }
 }
