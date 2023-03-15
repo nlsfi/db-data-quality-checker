@@ -14,6 +14,7 @@ import fi.nls.dbquality.model.QualityQueryResult;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -40,12 +41,14 @@ public class RuleExecutorService {
 
     public List<QualityQueryResult> executeRule(JdbcTemplate jdbcTemplate, String sql, List<UUID> ids) {
         String queryStr = QualityRuleSqlParser.parse(sql, ids, idField);
-        boolean hasIdFilter = QualityRuleSqlParser.hasIdFilter(sql);
+        int idFilterCount = QualityRuleSqlParser.idFilterCount(sql);
 
         try {
-            var args = ids == null ? null : ids.toArray(new Object[0]);
-            if (args != null && args.length > 0 && hasIdFilter) {
-                return jdbcTemplate.query(queryStr, new QualityQueryResultRowMapper(), args);
+            if (idFilterCount > 0) {
+                var args = ids == null ? null : generateVariables(idFilterCount, ids);
+                if (args != null && args.length > 0) {
+                    return jdbcTemplate.query(queryStr, new QualityQueryResultRowMapper(), args);
+                }
             }
             return jdbcTemplate.query(queryStr, new QualityQueryResultRowMapper());
         } catch (RuntimeException e) {
@@ -61,6 +64,14 @@ public class RuleExecutorService {
                 return result;
             }).collect(Collectors.toList());
         }
+    }
+
+    private Object[] generateVariables(int count, List<UUID> ids) {
+        ArrayList<UUID> variables = new ArrayList<>();
+        while (count-- > 0) {
+            variables.addAll(ids);
+        }
+        return variables.toArray(new Object[0]);
     }
 
     public static class QualityQueryResultRowMapper implements RowMapper<QualityQueryResult> {
