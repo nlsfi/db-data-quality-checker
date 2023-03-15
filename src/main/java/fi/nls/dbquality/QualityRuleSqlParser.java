@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.springframework.util.StringUtils;
+
 public class QualityRuleSqlParser {
 
     private static final String SOURCE_ID_PREFIX = "s.";
@@ -41,7 +43,7 @@ public class QualityRuleSqlParser {
         }
     }
 
-    public static boolean hasIdFilter(String sql) {
-        return sql.contains(SOURCE_ID_FILTER);
+    public static int idFilterCount(String sql) {
+        return StringUtils.countOccurrencesOf(sql, SOURCE_ID_FILTER);
     }
 }

@@ -1,5 +1,6 @@
 package fi.nls.dbquality.matcher;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,7 +11,14 @@ public class UUIDListMatcher implements ArgumentMatcher<Object[]> {
     private final List<UUID> expected;
 
     public UUIDListMatcher(List<UUID> expected) {
-        this.expected = expected;
+        this(expected, 1);
+    }
+
+    public UUIDListMatcher(List<UUID> expected, int count) {
+        this.expected = new ArrayList<>();
+        while (count-- > 0) {
+            this.expected.addAll(expected);
+        }
     }
 
     @Override

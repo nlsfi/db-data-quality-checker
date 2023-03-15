@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +31,7 @@ public class RuleExecutorTest {
 
     private static final String BASE_SQL = "SELECT * FROM schema.table";
     private static final String BASE_SQL_WITH_SOURCE_ID = "SELECT * FROM schema.table where :source_id_filter";
+    private static final String BASE_SQL_WITH_SOURCE_ID_TWICE = "SELECT * FROM schema.table where :source_id_filter or :source_id_filter";
     private static final String ID_FIELD = "id_field";
     private static final String TARGET_ID = "f63a52a7-c575-477f-896a-88fb16bb952a";
     private static final String RELATED_ID = "031afcc0-0b41-4612-978b-6b38593d5dbd";
@@ -76,6 +78,23 @@ public class RuleExecutorTest {
             assertThat(result.getTargetId()).isEqualTo(id2);
             assertThat(((BadQueryResult) result).getErrorMessage()).isEqualTo(errorMsg);
         });
+    }
+
+    @Test
+    @DisplayName("Multiple source id filters handled correctly")
+    void queryWithMultipleBindVariables() {
+        List<QualityQueryResult> resultList = new ArrayList<>();
+        QualityQueryResult result = new QualityQueryResult();
+        UUID uuid = UUID.randomUUID();
+        result.setTargetId(uuid);
+        resultList.add(result);
+        when(jdbcTemplate.query(anyString(), any(RuleExecutorService.QualityQueryResultRowMapper.class),
+                argThat(new UUIDListMatcher(ids, 2)))).thenReturn(resultList);
+
+        List<QualityQueryResult> results = workRuleExecutorService.executeRule(jdbcTemplate, BASE_SQL_WITH_SOURCE_ID_TWICE, ids);
+
+        assertThat(results.size()).isEqualTo(1);
+        assertThat(results.get(0).getTargetId()).isEqualTo(uuid);
     }
 
     @Test
