@@ -24,6 +24,8 @@ import fi.nls.dbquality.model.*;
 
 class QualityServiceTest {
 
+    private final String BAD_QUERY_ERROR_MSG = "bad SQL grammar";
+
     @Mock
     private RuleExecutorService workRuleExecutorService;
     @Mock
@@ -147,9 +149,10 @@ class QualityServiceTest {
 
         verify(workRuleExecutorService, times(1)).executeRule(any(JdbcTemplate.class), any(), any());
         assertEquals(1, results.size());
-        QualityResult result = results.get(0);
+        BadQueryQualityResult result = (BadQueryQualityResult) results.get(0);
         assertNull(result.getTargetId());
         assertEquals("ruleId1", result.getId());
+        assertEquals(BAD_QUERY_ERROR_MSG, result.getErrorMessage());
     }
 
     private QualityRule createQualityRule(String ruleId, String sql) {
@@ -160,9 +163,7 @@ class QualityServiceTest {
     }
 
     private List<UUID> createCriteria(List<UUID> ids) {
-        List<UUID> qualityCriteria = new ArrayList<>();
-        qualityCriteria.addAll(ids);
-        return qualityCriteria;
+        return new ArrayList<>(ids);
     }
 
     private QualityQueryResult createQueryResult(UUID targetId, UUID relatedId) {
@@ -175,7 +176,7 @@ class QualityServiceTest {
     private BadQueryResult createBadQueryResult(UUID targetId) {
         BadQueryResult result = new BadQueryResult();
         result.setTargetId(targetId);
-        result.setErrorMessage("bad SQL grammar");
+        result.setErrorMessage(BAD_QUERY_ERROR_MSG);
         return result;
     }
 }
