@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## [0.5.0] - 2023-03-27
+
+- Return error message if there was an error in SQL query.
+
 ## [0.3.0] - 2023-02-10
 
 - Remove unnecessary fields from models.

@@ -12,7 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import fi.nls.dbquality.model.*;
 
 public class QualityService {
-    private RuleExecutorService workRuleExecutorService;
+    private final RuleExecutorService workRuleExecutorService;
 
     /**
      * Constructor
@@ -88,7 +88,8 @@ public class QualityService {
         if (queryResult instanceof BadQueryResult) {
             return mapBadQueryResult(rule, (BadQueryResult) queryResult);
         }
-        QualityResult result = createBaseResult(rule);
+        QualityResult result = new QualityResult();
+        result.setId(rule.getRuleUniqueId());
         result.setTargetId(queryResult.getTargetId());
         result.setRelatedId(queryResult.getRelatedId());
         result.setViolatingGeometry(queryResult.getGeometryError());
@@ -96,15 +97,10 @@ public class QualityService {
     }
 
     private QualityResult mapBadQueryResult(QualityRule rule, BadQueryResult queryResult) {
-        QualityResult result = createBaseResult(rule);
-        result.setTargetId(queryResult.getTargetId());
-        return result;
-    }
-
-    private QualityResult createBaseResult(QualityRule rule) {
-        QualityResult result = new QualityResult();
+        BadQueryQualityResult result = new BadQueryQualityResult();
         result.setId(rule.getRuleUniqueId());
+        result.setTargetId(queryResult.getTargetId());
+        result.setErrorMessage(queryResult.getErrorMessage());
         return result;
     }
-
 }
