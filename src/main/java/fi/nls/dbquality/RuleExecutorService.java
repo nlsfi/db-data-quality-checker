@@ -1,17 +1,5 @@
 package fi.nls.dbquality;
 
-import org.geolatte.geom.C2D;
-import org.geolatte.geom.crs.CrsRegistry;
-import org.geolatte.geom.codec.Wkt;
-
-import net.postgis.jdbc.PGgeometry;
-import org.geolatte.geom.crs.CoordinateReferenceSystem;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-
-import fi.nls.dbquality.model.BadQueryResult;
-import fi.nls.dbquality.model.QualityQueryResult;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -20,10 +8,22 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.postgis.jdbc.PGgeometry;
+import org.geolatte.geom.C2D;
+import org.geolatte.geom.codec.Wkt;
+import org.geolatte.geom.crs.CoordinateReferenceSystem;
+import org.geolatte.geom.crs.CrsRegistry;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+import fi.nls.dbquality.model.BadQueryResult;
+import fi.nls.dbquality.model.QualityQueryResult;
+
 public class RuleExecutorService {
     private static final int SRID_2D = 3067;
     @SuppressWarnings("unchecked")
-    private static CoordinateReferenceSystem<C2D> referenceSystem = (CoordinateReferenceSystem<C2D>) CrsRegistry.getCoordinateReferenceSystemForEPSG(SRID_2D, null);;
+    private static CoordinateReferenceSystem<C2D> referenceSystem =
+            (CoordinateReferenceSystem<C2D>) CrsRegistry.getCoordinateReferenceSystemForEPSG(SRID_2D, null);
 
     private String idField;
 

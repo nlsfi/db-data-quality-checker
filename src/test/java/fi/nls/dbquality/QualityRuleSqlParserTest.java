@@ -104,8 +104,7 @@ class QualityRuleSqlParserTest {
         UUID id3 = UUID.fromString("f50a5c61-4826-42d9-81fd-098d9546df07");
         String sql = "select * from tablename where :source_id_filter and :source_id_filter;";
 
-        String expectedSql = "select * from tablename where s." + ID_FIELD + " IN (?,?,?) and s."
-                + ID_FIELD + " IN (?,?,?);";
+        String expectedSql = "select * from tablename where s." + ID_FIELD + " IN (?,?,?) and s." + ID_FIELD + " IN (?,?,?);";
         String result = QualityRuleSqlParser.parse(sql, List.of(id1, id2, id3), ID_FIELD);
         assertEquals(expectedSql, result);
     }
