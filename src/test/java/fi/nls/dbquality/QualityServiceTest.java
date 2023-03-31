@@ -8,8 +8,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import java.util.*;
 
+import java.util.*;
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.AfterEach;
@@ -53,8 +53,7 @@ class QualityServiceTest {
     void rulesAreExecutedWithIds() {
         var rules = List.of(
                 createQualityRule("ruleId1", "sql1"),
-                createQualityRule("ruleId2", "sql2")
-        );
+                createQualityRule("ruleId2", "sql2"));
         UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
         List<UUID> qualityCriteria = createCriteria(List.of(id1));
@@ -69,16 +68,14 @@ class QualityServiceTest {
     @DisplayName("Rule results are returned")
     void ruleResultsAreReturned() {
         var rules = List.of(
-                createQualityRule("ruleId1", null)
-        );
+                createQualityRule("ruleId1", null));
         UUID id1 = UUID.randomUUID();
         UUID id11 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
         UUID id22 = UUID.randomUUID();
         when(workRuleExecutorService.executeRule(any(JdbcTemplate.class), any(), any())).thenReturn(List.of(
                 createQueryResult(id1, id11),
-                createQueryResult(id2, id22)
-        ));
+                createQueryResult(id2, id22)));
 
         List<UUID> qualityCriteria = createCriteria(List.of(id1, id2));
         QualityRunResult qualityRunResult = qualityService.executeRules(dataSource, qualityCriteria, rules);
@@ -113,8 +110,7 @@ class QualityServiceTest {
         when(workRuleExecutorService.executeRule(any(JdbcTemplate.class), any(), any()))
                 .thenReturn(List.of(
                         createBadQueryResult(id1),
-                        createBadQueryResult(id2)
-                ))
+                        createBadQueryResult(id2)))
                 .thenReturn(List.of(createQueryResult(id1, id11)))
                 .thenReturn(List.of(createBadQueryResult(id2)));
         List<UUID> ids = List.of(id1, id2);

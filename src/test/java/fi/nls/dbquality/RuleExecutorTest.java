@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import net.postgis.jdbc.PGgeometry;
 import org.geolatte.geom.jts.JTS;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +26,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import fi.nls.dbquality.matcher.UUIDListMatcher;
 import fi.nls.dbquality.model.BadQueryResult;
 import fi.nls.dbquality.model.QualityQueryResult;
-import net.postgis.jdbc.PGgeometry;
 
 public class RuleExecutorTest {
 

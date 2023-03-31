@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,9 +17,9 @@ public class QualityService {
      * Constructor
      *
      * @param idFieldName
-     *            id column name
+     *        id column name
      * @throws IllegalArgumentException
-     *             if the id column name is not vali
+     *         if the id column name is not vali
      */
     public QualityService(String idFieldName) {
         this(new RuleExecutorService(idFieldName));
@@ -39,7 +38,7 @@ public class QualityService {
      *
      * @param dataSource
      * @param features list of ids for source_id_filter placeholder in sql statements. Empty list: source_id_filter is replaced
-     *   with criteria <code>1=1</code>. Null: source_id_filter is replaced with criteria <code>1=0</code>.
+     *        with criteria <code>1=1</code>. Null: source_id_filter is replaced with criteria <code>1=0</code>.
      * @param rules rules to be executed
      * @return {@link fi.nls.dbquality.model.QualityRunResult}
      */
@@ -70,15 +69,15 @@ public class QualityService {
             return executeIndividualQueries(jdbcTemplate, rule, ids);
         }
         return queryResults.stream().map(
-                queryResult -> mapQueryResult(rule, queryResult)
-        );
+                queryResult -> mapQueryResult(rule, queryResult));
     }
 
     private Stream<QualityResult> executeIndividualQueries(JdbcTemplate jdbcTemplate, QualityRule rule, List<UUID> ids) {
         AtomicReference<Stream<QualityResult>> resultStream = new AtomicReference<>(Stream.empty());
         ids.forEach(id -> {
             List<QualityQueryResult> individualQueryResults = workRuleExecutorService.executeRule(jdbcTemplate, rule.getSql(), List.of(id));
-            resultStream.set(Stream.concat(resultStream.get(), individualQueryResults.stream().map(queryResult -> mapQueryResult(rule, queryResult))));
+            resultStream
+                    .set(Stream.concat(resultStream.get(), individualQueryResults.stream().map(queryResult -> mapQueryResult(rule, queryResult))));
 
         });
         return resultStream.get();
