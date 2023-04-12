@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add integration test with h2 database
+
 ## [0.5.0] - 2023-03-27
 
 - Return error message if there was an error in SQL query.

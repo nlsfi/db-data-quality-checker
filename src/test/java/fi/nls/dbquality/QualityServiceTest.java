@@ -52,8 +52,8 @@ class QualityServiceTest {
     @DisplayName("Rule is executed with ids of category")
     void rulesAreExecutedWithIds() {
         var rules = List.of(
-                createQualityRule("ruleId1", "sql1"),
-                createQualityRule("ruleId2", "sql2"));
+                QualityRuleFixture.createQualityRule("ruleId1", "sql1"),
+                QualityRuleFixture.createQualityRule("ruleId2", "sql2"));
         UUID id1 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
         List<UUID> qualityCriteria = createCriteria(List.of(id1));
@@ -68,7 +68,7 @@ class QualityServiceTest {
     @DisplayName("Rule results are returned")
     void ruleResultsAreReturned() {
         var rules = List.of(
-                createQualityRule("ruleId1", null));
+                QualityRuleFixture.createQualityRule("ruleId1", null));
         UUID id1 = UUID.randomUUID();
         UUID id11 = UUID.randomUUID();
         UUID id2 = UUID.randomUUID();
@@ -102,7 +102,7 @@ class QualityServiceTest {
     @Test
     @DisplayName("Rules are rerun individually for each id when bad query result is returned")
     void rulesAreRerun() {
-        QualityRule rule = createQualityRule("ruleId1", null);
+        QualityRule rule = QualityRuleFixture.createQualityRule("ruleId1", null);
         var rules = List.of(rule);
         UUID id1 = UUID.randomUUID();
         UUID id11 = UUID.randomUUID();
@@ -136,7 +136,7 @@ class QualityServiceTest {
     @Test
     @DisplayName("Single result is returned when bad query result is received and one id is given")
     void badQueryNoIds() {
-        QualityRule rule = createQualityRule("ruleId1", null);
+        QualityRule rule = QualityRuleFixture.createQualityRule("ruleId1", null);
         var rules = List.of(rule);
         when(workRuleExecutorService.executeRule(any(JdbcTemplate.class), any(), any())).thenReturn(List.of(createBadQueryResult(null)));
 
@@ -149,13 +149,6 @@ class QualityServiceTest {
         assertNull(result.getTargetId());
         assertEquals("ruleId1", result.getId());
         assertEquals(BAD_QUERY_ERROR_MSG, result.getErrorMessage());
-    }
-
-    private QualityRule createQualityRule(String ruleId, String sql) {
-        QualityRule rule = new QualityRule();
-        rule.setRuleUniqueId(ruleId);
-        rule.setSql(sql);
-        return rule;
     }
 
     private List<UUID> createCriteria(List<UUID> ids) {
