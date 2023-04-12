@@ -11,6 +11,7 @@
         <assertj-core.version>3.24.1</assertj-core.version>
         <spring-jdbc.version>5.2.22.RELEASE</spring-jdbc.version>
         <junit-jupiter-api.version>5.9.2</junit-jupiter-api.version>
+        <h2.version>2.1.214</h2.version>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <maven-deploy-plugin.version>3.0.0</maven-deploy-plugin.version>
         <mockito-core.version>5.0.0</mockito-core.version>
@@ -56,6 +57,12 @@
             <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
             <version>${junit-jupiter-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+            <version>${h2.version}</version>
         </dependency>
     </dependencies>
     <build>
