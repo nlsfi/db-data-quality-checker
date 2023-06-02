@@ -9,8 +9,7 @@ Library can be used to find rows in database which match the given rules. Rule c
 ### Minimal working example
 
 - prerequisites:
-    - [mvn](https://maven.apache.org/download.cgi) executable in PATH 
-    - `example-quality-rules.yml` file is located in project root directory
+    - [mvn](https://maven.apache.org/download.cgi) executable in PATH
     - PostGIS database `example` in localhost in port 5442. Can be changed in `createDatasource` method.
     - test data created with `create-example-table.sql` script in `public` - schema
     - user `postgres\postgres` granted to select from table `example_table`
@@ -61,7 +60,7 @@ public class Demo {
                 + " FROM ( SELECT id, (ST_DumpPoints( geom )).geom AS vertex FROM public.example_table s"
                 + " WHERE :source_id_filter) sp WHERE  ST_Z(vertex) = 'NaN'::numeric");
         result.add(rule1);
- 
+
         var rule2 = new QualityRule();
         rule2.setSql("SELECT s.id AS source_id, s.geom AS geom, null AS target_id"
                 + " FROM public.example_table s WHERE :source_id_filter AND"
@@ -146,7 +145,7 @@ public class Demo {
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <!-- spring boot 2.7.1 has 42.3.6, which still has this issue 
+            <!-- spring boot 2.7.1 has 42.3.6, which still has this issue
                 with param count https://github.com/pgjdbc/pgjdbc/issues/1311, override with
                 fix for now -->
             <version>42.4.0</version>
