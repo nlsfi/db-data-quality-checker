@@ -1,0 +1,106 @@
+quality_rules:
+- descriptions:
+  - description: The geometry must be within Polygon 1,Polygon 2
+    lang: en
+  priority: warning
+  rule_key: is_within
+  sql: |-
+    SELECT
+      s.fid AS source_id,
+      ST_Force2D(s.geom) AS geom,
+      NULL AS target_id
+    FROM
+      some_schema.line_one s
+    WHERE
+      ST_IsValid(s.geom) AND ST_IsSimple(s.geom)
+      AND NOT EXISTS (
+            SELECT
+            FROM other_schema.polygon_1 t
+            WHERE
+              t.fid <> s.fid
+              AND s.geom && t.geom
+              AND ST_IsValid(t.geom) AND ST_IsSimple(t.geom)
+              AND ST_Within(s.geom, t.geom)
+              and t.some_attr is null
+        )
+      AND NOT EXISTS (
+            SELECT
+            FROM yet_another_schema.polygon_two t
+            WHERE
+              t.fid <> s.fid
+              AND s.geom && t.geom
+              AND ST_IsValid(t.geom) AND ST_IsSimple(t.geom)
+              AND ST_Within(s.geom, t.geom)
+        )
+  targets:
+  - filter: and t.some_attr is null
+    name: Polygon 1
+    table: other_schema.polygon_1
+  - name: Polygon 2
+    table: yet_another_schema.polygon_two
+  type: topology
+- descriptions:
+  - description: The geometry must be within Some other polygon
+    lang: en
+  priority: warning
+  rule_key: is_within
+  sql: |-
+    SELECT
+      s.fid AS source_id,
+      ST_Force2D(s.geom) AS geom,
+      NULL AS target_id
+    FROM
+      some_schema.line_one s
+    WHERE
+      ST_IsValid(s.geom) AND ST_IsSimple(s.geom)
+      AND NOT EXISTS (
+            SELECT
+            FROM some_schema.other_polygon t
+            WHERE
+              t.fid <> s.fid
+              AND s.geom && t.geom
+              AND ST_IsValid(t.geom) AND ST_IsSimple(t.geom)
+              AND ST_Within(s.geom, t.geom)
+        )
+  targets:
+  - name: Some other polygon
+    table: some_schema.other_polygon
+  type: topology
+- descriptions:
+  - description: Line geometry length should not be less than 10 meters
+    lang: en
+  priority: warning
+  rule_key: line_longer_than
+  source_filter: and s.some_attr = 'is_long_line_type'
+  sql: |-
+    SELECT
+      s.fid AS source_id,
+      ST_Force2D(s.geom) AS geom,
+      NULL AS target_id
+    FROM
+      some_schema.line_one s
+    WHERE
+      ST_IsValid(s.geom) AND ST_IsSimple(s.geom)
+      AND ST_Length(s.geom) < 10
+      and s.some_attr = 'is_long_line_type'
+  threshold: 10
+  type: geometry
+- descriptions:
+  - description: Line geometry length should not be less than 1 meters
+    lang: en
+  priority: warning
+  rule_key: line_longer_than
+  source_filter: and s.some_attr = 'is_short_line_type'
+  sql: |-
+    SELECT
+      s.fid AS source_id,
+      ST_Force2D(s.geom) AS geom,
+      NULL AS target_id
+    FROM
+      some_schema.line_one s
+    WHERE
+      ST_IsValid(s.geom) AND ST_IsSimple(s.geom)
+      AND ST_Length(s.geom) < 1
+      and s.some_attr = 'is_short_line_type'
+  threshold: 1
+  type: geometry

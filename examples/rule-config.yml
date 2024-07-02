@@ -1,0 +1,16 @@
+some_schema.line_one:
+  is_within:
+    - targets:
+        - name: Polygon 1
+          table: other_schema.polygon_1
+          filter: and t.some_attr is null
+        - name: Polygon 2
+          table: yet_another_schema.polygon_two
+    - targets:
+        - name: Some other polygon
+          table: some_schema.other_polygon
+  line_longer_than:
+    - threshold: 10
+      source_filter: and s.some_attr = 'is_long_line_type'
+    - threshold: 1
+      source_filter: and s.some_attr = 'is_short_line_type'

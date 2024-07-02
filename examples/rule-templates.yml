@@ -1,0 +1,46 @@
+line_longer_than:
+  descriptions:
+    - lang: en
+      description: Line geometry length should not be less than {{ threshold }} meters
+  type: geometry
+  priority: warning
+  sql: >
+    SELECT
+      s.{{ id_column }} AS source_id,
+      ST_Force2D(s.{{ geometry_column }}) AS geom,
+      NULL AS target_id
+    FROM
+      {{ source }} s
+    WHERE
+      ST_IsValid(s.{{ geometry_column }}) AND ST_IsSimple(s.{{ geometry_column }})
+      AND ST_Length(s.{{ geometry_column }}) < {{ threshold }}
+      {{ source_filter | default('') }}
+
+is_within:
+  descriptions:
+    - lang: en
+      description: The geometry must be within {{ targets | map(attribute='name') | join(',') }}
+  type: topology
+  priority: warning
+  sql: >
+    SELECT
+      s.{{ id_column }} AS source_id,
+      ST_Force2D(s.{{ geometry_column }}) AS geom,
+      NULL AS target_id
+    FROM
+      {{ source }} s
+    WHERE
+      ST_IsValid(s.{{ geometry_column }}) AND ST_IsSimple(s.{{ geometry_column }})
+      {% for target in targets -%}
+        AND NOT EXISTS (
+            SELECT
+            FROM {{ target.table }} t
+            WHERE
+              t.{{ id_column }} <> s.{{ id_column }}
+              AND s.{{ geometry_column }} && t.{{ geometry_column }}
+              AND ST_IsValid(t.{{ geometry_column }}) AND ST_IsSimple(t.{{ geometry_column }})
+              AND ST_Within(s.{{ geometry_column }}, t.{{ geometry_column }})
+              {{ target.filter | default('') }}
+        )
+      {% endfor -%}
+      {{ source_filter | default('') }}
