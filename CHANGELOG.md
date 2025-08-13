@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Add integration test with h2 database
+- Update library versions
 
 ## [0.5.0] - 2023-03-27
 
